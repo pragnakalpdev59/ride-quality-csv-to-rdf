@@ -82,14 +82,14 @@ def start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_fol
                 # Check for changes every second
                 if current_time - last_change_time > no_change_detected_time:
                     # Process files and generate RDF if no changes detected
-                    for csv_filename in os.listdir(csv_folder):
-                        if csv_filename.lower().endswith((".csv", ".CSV")):
+                    for csv_filename in sorted(os.listdir(csv_folder)):
+                        if csv_filename.endswith(".csv"):
                             csv_file_path = os.path.join(csv_folder, csv_filename)
                             destination_path = os.path.join(classified_csv, csv_filename)
                             cached_df.to_csv(destination_path, index=False)  # Save classified CSV
 
                     # Move files and generate RDF if changes detected
-                    for rdf_filename in os.listdir(rdf_folder):
+                    for rdf_filename in sorted(os.listdir(rdf_folder)):
                         if rdf_filename.endswith(".ttl"):
                             temp_file_path = os.path.join(rdf_folder, rdf_filename)
                             road_section_list = end_filename(destination_path)

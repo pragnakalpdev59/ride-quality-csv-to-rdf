@@ -1,12 +1,22 @@
 # Importing necessary modules
-from imports.imports import Graph, URIRef, prepareQuery, get_ontology, sync_reasoner, time  # Importing specific functions/classes
+from imports.imports import json, Graph, URIRef, prepareQuery, get_ontology, sync_reasoner, time  # Importing specific functions/classes
 from measure_distance.distance_algo import compare_value  # Importing custom distance algorithm functions
 
 # Function to extract geo-location data from RDF and update JSON
 def all_geo_location(rdf_file_path, json_file_path, average_speed_json, aggregation_point_folder):
+    """
+    This function extracts geo-location data (latitude, longitude, and speed) from an RDF file,
+    processes it, and writes the results to a JSON file.
+
+    Args:
+        rdf_file_path (str): Path to the RDF file containing geo-location data.
+        json_file_path (str): Path to the output JSON file.
+        average_speed_json (str): Path to the average speed JSON file (used for processing).
+        aggregation_point_folder (str): Path to the aggregation point folder (for potential future use).
+    """
     try:
         # Load RDF data and ontology into a graph
-        ontology = "ontology.owl"
+        ontology = "ontology.owl"  # Path to the ontology file (assumed to be in the same location)
         g = Graph()
         g.parse(ontology, format="xml")  # Load ontology
         g.parse(rdf_file_path, format="turtle")  # Load RDF data
@@ -17,7 +27,7 @@ def all_geo_location(rdf_file_path, json_file_path, average_speed_json, aggregat
         # Define namespaces for RDF queries
         RideQuality = URIRef("http://www.gecdahod.ac.in/ontologies/2024/0/RideQuality#")
 
-        # Prepare SPARQL query to retrieve geoLocations with latitude, longitude, and speed
+        # Prepare SPARQL query to retrieve relevant data
         query_str = """
             PREFIX RideQuality: <http://www.gecdahod.ac.in/ontologies/2024/0/RideQuality#>
             SELECT ?geoLocation ?latitude ?longitude ?speed
@@ -48,7 +58,7 @@ def all_geo_location(rdf_file_path, json_file_path, average_speed_json, aggregat
         with open(json_file_path, 'w') as file:
             file.write(vehicle_json_data)
 
-            # Compare the JSON data with average speed data and perform aggregation
+            # Call a separate function to compare JSON data with average speed data and perform aggregation (potential future enhancement)
             compare_value(vehicle_json_data, average_speed_json, aggregation_point_folder)
 
     except Exception as e:

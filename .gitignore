@@ -119,6 +119,23 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# ignore file types
+**.csv
+**.ttl
+**.rdf
+autoadd.py
+test.py
+**.owl
+/update_rdf
+/file_uploading
+**.json
+Data_Reasoning
+combined_rdf
+value_validation
+checkValue.py
+test2.py
+query.txt
+
 # Environments
 .env
 .venv
@@ -127,6 +144,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+env_rdf/
 
 # Spyder project settings
 .spyderproject

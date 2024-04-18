@@ -1,41 +1,44 @@
-from imports.imports import pd, json, os
+from imports.imports import pd, json, os  # Import necessary modules
 
 def json_generation(csv_file_path, json_file_path):
-    df = pd.read_csv(csv_file_path)
-    similar_value = []
-    unique_value = []
+    """Generate JSON file from CSV data."""
+    df = pd.read_csv(csv_file_path)  # Read CSV file into DataFrame
+    similar_value = []  # Initialize list for similar values
+    unique_value = []  # Initialize list for unique values
 
+    # Extract columns from DataFrame
     MovementClassification = df['MovementClassification'].tolist()
     latitude = df['lat'].tolist()
     longitude = df['lon'].tolist()
     speed = df['speed'].tolist()
-    data = {}
-    idx = 0
+    data = {}  # Initialize dictionary for data
+    idx = 0  # Initialize index for unique values
 
     for i in range(len(MovementClassification)):
-            data = {
-                "latitude": latitude[i],
-                "longitude": longitude[i],
-                "MovementClassification": MovementClassification[i],
-                "speed": speed[i]
-            }
-            if i == 0 or MovementClassification[i] == MovementClassification[i-1]:
-                similar_value.append(data)
-            else:
-                unique_value.append({f"geoLocation{str(idx+1).zfill(5)}" : similar_value.copy()})
-                similar_value.clear()
-                similar_value.append(data)
-                idx += 1
+        # Create data dictionary for each row
+        data = {
+            "latitude": latitude[i],
+            "longitude": longitude[i],
+            "MovementClassification": MovementClassification[i],
+            "speed": speed[i]
+        }
 
+        # Check if movement classification is similar to previous row
+        if i == 0 or MovementClassification[i] == MovementClassification[i-1]:
+            similar_value.append(data)  # Add data to similar value list
+        else:
+            # Add unique value to unique value list
+            unique_value.append({f"geoLocation{str(idx+1).zfill(5)}": similar_value.copy()})
+            similar_value.clear()  # Clear similar value list
+            similar_value.append(data)  # Add data to cleared list
+            idx += 1  # Increment index for unique values
+
+    # Check if there are remaining similar values
     if similar_value:
-            unique_value.append({f"geoLocation{str(idx+1).zfill(5)}" : similar_value.copy()})
+        unique_value.append({f"geoLocation{str(idx+1).zfill(5)}": similar_value.copy()})
 
+    # Convert unique value list to JSON format
     json_data = json.dumps(unique_value, indent=4)
+    # Write JSON data to file
     with open(json_file_path, 'w') as file:
-            file.write(json_data)
-
-
-if __name__ == "__main__":
-    csv_folder = "/home/pragnakalp-l-12/Desktop/viren_sir/test/output/csv_local_copy/RoadSection_Start:('22.875595', '74.230773')_End:('22.855836', '74.243385')_20240411181353.csv"
-    json_folder = "/home/pragnakalp-l-12/Desktop/viren_sir/gitHub/csv_to_rdf_converter/output/json/D-101 ss to gec.json"
-    json_generation(csv_folder, json_folder)
+        file.write(json_data)

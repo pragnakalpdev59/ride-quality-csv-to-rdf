@@ -14,3 +14,4 @@ from rdflib.plugins.sparql import prepareQuery
 from owlready2 import get_ontology, sync_reasoner
 import json
 from memory_profiler import profile
+from imports.config import logger

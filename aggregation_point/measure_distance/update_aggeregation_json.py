@@ -22,7 +22,7 @@ def get_average_speed(AggregationPoint_json, average_speed_json, aggregation_poi
         # Update AggregationPoint JSON with new speed values
         update_json(AggregationPoint_json, speedData, average_speed_json, aggregation_point_folder)
     except Exception as e:
-        print(f"Error in get_average_speed: {e}")
+        logger.error(f"Error in get_average_speed: {e}")
 
 # Function to update JSON data with new speed values
 def update_json(AggregationPoint_json, new_speed_values, average_speed_json, aggregation_point_folder):
@@ -45,7 +45,7 @@ def update_json(AggregationPoint_json, new_speed_values, average_speed_json, agg
         # Perform further processing and generate RDF data (function not shown)
         make_new_aggeregation_rdf(updated_json_data, aggregation_point_folder, average_speed_json)
     except Exception as e:
-        print(f"Error in update_json: {e}")
+        logger.error(f"Error in update_json: {e}")
 
 # Function to calculate sliding window severity
 def sliding_window(speed):
@@ -82,7 +82,7 @@ def sliding_window(speed):
 
         return severities
     except Exception as e:
-        print(f"Error in sliding_window: {e}")
+        logger.error(f"Error in sliding_window: {e}")
 
 # Function to classify movement based on severity
 def classification(df):
@@ -106,7 +106,7 @@ def classification(df):
         # Consider caching the modified DataFrame for efficiency (commented out for now)
         # cached_df = df
     except Exception as e:
-        print(f"Error in classification: {e}")
+        logger.error(f"Error in classification: {e}")
 
 def classify_movement(severity):
     """
@@ -135,7 +135,7 @@ def classify_movement(severity):
             if range_[0] <= severity < range_[1]:
                 return movement
     except Exception as e:
-        print(f"Error in classify_movement: {e}")
+        logger.error(f"Error in classify_movement: {e}")
 
 # Function to move files to old_data folder
 def move_stuff(aggregation_point_folder):
@@ -165,9 +165,9 @@ def move_stuff(aggregation_point_folder):
             shutil.move(source_file, destination_file)  # Move the file
 
             # Add logging for tracking purposes (commented out for now)
-            # print(f"Moved file: {source_file} to {destination_file}")
+            logger.info(f"Moved file: {source_file} to {destination_file}")
     except Exception as e:
-        print(f"Error in move_stuff: {e}")
+        logger.error(f"Error in move_stuff: {e}")
 
 
 # Function to generate new aggregation RDF data
@@ -185,4 +185,4 @@ def make_new_aggeregation_rdf(updated_json_data, aggregation_point_folder, avera
             jsonfile.write(updated_json_data)
 
     except Exception as e:
-        print(f"Error in make_new_aggregation_rdf: {e}")
+        logger.error(f"Error in make_new_aggregation_rdf: {e}")

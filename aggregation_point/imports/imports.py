@@ -15,3 +15,6 @@ from owlready2 import get_ontology, sync_reasoner
 import json
 from io import StringIO
 from math import radians, sin, cos, sqrt
+from imports.config import logger
+import threading
+from rtree import index

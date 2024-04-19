@@ -6,7 +6,7 @@ def csv_to_rdf_conversion(column_labels, csv_folder, classified_csv, rdf_folder,
         # Start watching the CSV folder for changes and perform CSV to RDF conversion
         start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_folder, rdf_local_copy, csv_local_copy, json_folder, combined_triples_rdf, ttl_file_path)
     except Exception as e:
-        print(f"Error in csv_to_rdf_conversion: {e}")
+        logger.error(f"Error in csv_to_rdf_conversion: {e}")
 
 def main():
     try:
@@ -42,7 +42,7 @@ def main():
         # Perform CSV to RDF conversion
         csv_to_rdf_conversion(column_labels, csv_folder, classified_csv, rdf_folder, rdf_local_copy, csv_local_copy, json_folder, combined_triples_rdf, ttl_file_path)
     except Exception as e:
-        print(f"Error in main: {e}")
+        logger.error(f"Error in main: {e}")
 
 
 if __name__ == "__main__":

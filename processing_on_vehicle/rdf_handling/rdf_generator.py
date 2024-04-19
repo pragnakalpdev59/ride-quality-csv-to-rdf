@@ -28,7 +28,7 @@ def create_subject_and_triple(idx, row, RideQuality):
 
         return sub, ride_quality, subject, speed, latitude, longitude  # Return extracted data
     except Exception as e:
-        print(f"Error in create_subject_and_triple: {e}")
+        logger.error(f"Error in create_subject_and_triple: {e}")
         return None, None, None, None, None  # Return None values in case of an error
 
 def csv_to_rdf(cached_df, rdf_folder, ttl_file_path):
@@ -83,15 +83,15 @@ def csv_to_rdf(cached_df, rdf_folder, ttl_file_path):
         graph.serialize(ttl_file_path, format="ttl")
 
     except Exception as e:
-        print(f"Error in csv_to_rdf: {e}")  # Log error if any
+        logger.error(f"Error in csv_to_rdf: {e}")  # Log error if any
 
 def rdf_generation(cached_df, rdf_folder, ttl_file_path):
     try:
         # Use ProcessPoolExecutor for concurrent execution
-        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count()) as executor:
             futures = [executor.submit(csv_to_rdf, cached_df, rdf_folder, ttl_file_path)]
 
         concurrent.futures.wait(futures)  # Wait for all tasks to complete
     except Exception as e:
-        print(f"Error in rdf_generation: {e}")  # Log error if any
+        logger.error(f"Error in rdf_generation: {e}")  # Log error if any
 

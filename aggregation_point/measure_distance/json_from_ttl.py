@@ -1,5 +1,5 @@
 # Importing necessary modules
-from imports.imports import json, Graph, URIRef, prepareQuery, get_ontology, sync_reasoner, time  # Importing specific functions/classes
+from imports.imports import json, Graph, URIRef, prepareQuery, get_ontology, sync_reasoner, time, logger  # Importing specific functions/classes
 from measure_distance.distance_algo import compare_value  # Importing custom distance algorithm functions
 
 # Function to extract geo-location data from RDF and update JSON
@@ -62,4 +62,4 @@ def all_geo_location(rdf_file_path, json_file_path, average_speed_json, aggregat
             compare_value(vehicle_json_data, average_speed_json, aggregation_point_folder)
 
     except Exception as e:
-        print(f"Error in all_geo_location: {e}")
+        logger.error(f"Error in all_geo_location: {e}")

@@ -27,7 +27,7 @@ def create_subject_and_triple(idx, row, RideQuality):
 
         return sub, ride_quality, subject, speed, latitude, longitude  # Return RDF subject and triples
     except Exception as e:
-        print(f"Error in create_subject_and_triple: {e}")  # Log error
+        logger.error(f"Error in create_subject_and_triple: {e}")  # Log error
         return None, None, None, None, None
 
 # Function to convert CSV data to RDF format
@@ -70,7 +70,7 @@ def csv_to_rdf(cached_df, rdf_folder):
         graph.serialize(ttl_file_path)
 
     except Exception as e:
-        print(f"Error in csv_to_rdf: {e}")  # Log error
+        logger.error(f"Error in csv_to_rdf: {e}")  # Log error
 
 # Function for RDF generation using multiprocessing
 def rdf_generation(cached_df, rdf_folder):
@@ -80,4 +80,4 @@ def rdf_generation(cached_df, rdf_folder):
 
         concurrent.futures.wait(futures)  # Wait for tasks to complete
     except Exception as e:
-        print(f"Error in rdf_generation: {e}")  # Log error
+        logger.error(f"Error in rdf_generation: {e}")  # Log error

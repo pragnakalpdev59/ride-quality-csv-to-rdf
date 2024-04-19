@@ -19,7 +19,7 @@ def main(rdf_file_path, vehicle_json, average_speed_json, aggregation_point_fold
     try:
         all_geo_location(rdf_file_path, vehicle_json, average_speed_json, aggregation_point_folder)
     except Exception as e:
-        print(f"Error in main: {e}")
+        logger.error(f"Error in main: {e}")
 
 def watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, aggregation_point_folder):
     """
@@ -54,10 +54,10 @@ def watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, agg
                 event_handler.clear_changes()  # Reset the change flag
 
         except KeyboardInterrupt:
-            print(f"Keyboard interrupt detected")
+            logger.error(f"Keyboard interrupt detected")
 
     except Exception as e:
-        print(f"Error in watching_rdf_folder: {e}")
+        logger.error(f"Error in watching_rdf_folder: {e}")
 
 class MyHandler(FileSystemEventHandler):
     """
@@ -104,7 +104,7 @@ class MyHandler(FileSystemEventHandler):
                 else:
                     print(f'Ignoring non-TTL file: {file_name}')
         except Exception as e:
-            print(f"Error in MyHandler.on_created: {e}")
+            logger.error(f"Error in MyHandler.on_created: {e}")
 
     def has_changes(self):
         """

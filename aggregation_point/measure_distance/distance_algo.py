@@ -1,13 +1,7 @@
 # Importing necessary modules and functions
 from imports.imports import *
-
 # Importing a specific function from a module
 from measure_distance.update_aggeregation_json import get_average_speed
-
-# Importing for concurrent processing
-import threading
-# Importing R-tree for spatial indexing
-from rtree import index
 
 # Path to the aggregation point RDF file (assuming it's a JSON file)
 aggeregation_point_rdf = '/home/pragnakalp-l-12/Desktop/viren_sir/test/aggregation_point/aggregation_point_rdf/AggregationPoint.json'
@@ -48,7 +42,7 @@ def update_json(json_file_path, json_data, aggregation_point_folder):
         # Write updated data back to the JSON file
         with open(json_file_path, "w") as file:
             json.dump(existing_json, file, indent=4)
-            print("JSON file updated successfully.")
+            logger.info("JSON file updated successfully.")
 
         # Check if any list in the JSON has a length of 6 or more (might be for triggering further processing)
         for key, value in existing_json.items():
@@ -60,7 +54,7 @@ def update_json(json_file_path, json_data, aggregation_point_folder):
             get_average_speed(aggeregation_point_rdf, json_file_path, aggregation_point_folder)
 
     except Exception as e:
-        print(f"Error in update_json: {e}")
+        logger.error(f"Error in update_json: {e}")
 
 
 # Function to calculate distance between two points using the Haversine formula
@@ -91,7 +85,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
         return distance
 
     except Exception as e:
-        print(f"Error in haversine_distance: {e}")
+        logger.error(f"Error in haversine_distance: {e}")
 
 # Function to check proximity of data points with target locations using R-tree
 def check_proximity_with_rtree(vehicle_data_df):
@@ -168,7 +162,7 @@ def check_proximity_with_rtree(vehicle_data_df):
         return close_points
 
     except Exception as e:
-        print(f"Error in check_proximity_with_rtree: {e}")
+        logger.error(f"Error in check_proximity_with_rtree: {e}")
 
 # Update your compare_value function to use the new check_proximity_with_rtree function
 def compare_value(vehicle_json_data, average_speed_json, aggregation_point_folder):
@@ -217,5 +211,5 @@ def compare_value(vehicle_json_data, average_speed_json, aggregation_point_folde
                 file.write(json_data)
 
     except Exception as e:
-        print(f"Error in compare_value: {e}")
+        logger.error(f"Error in compare_value: {e}")
 

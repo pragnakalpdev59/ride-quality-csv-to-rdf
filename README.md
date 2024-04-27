@@ -1,4 +1,3 @@
-```markdown
 # CSV to RDF Conversion
 
 ## Introduction
@@ -56,7 +55,7 @@ Installed on the Raspberry Pi of the vehicle, this component consists of the fol
   - Generates RDF graphs from CSV data.
 
 - **Combined Triples:**
-  - Additional files in the `rdf_handling` directory are used for creating combined triples files, although their use case is currently undeveloped.
+  - Additional files in the `rdf_handling` directory are used for creating combined triple files, although their use case is currently undeveloped.
 
 - **Output Folder:**
   - Automatically created if it does not exist, to store generated RDF files.
@@ -70,7 +69,6 @@ This folder is designed to reside on the main server hosting the website `https:
 ## Conclusion
 
 This README provides an overview of the project structure, functionalities, and setup instructions. For detailed implementation and usage guidance, refer to the individual files and directories within the project.
-```
 
 Feel free to adjust the content according to any additional details or changes you'd like to incorporate!
 There are comments added everywhere check them to understand the code better.

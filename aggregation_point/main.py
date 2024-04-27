@@ -19,7 +19,8 @@ def main(rdf_file_path, vehicle_json, average_speed_json, aggregation_point_fold
     try:
         all_geo_location(rdf_file_path, vehicle_json, average_speed_json, aggregation_point_folder)
     except Exception as e:
-        logger.error(f"Error in main: {e}")
+        logger.error(f"Error processing RDF file {rdf_file_path}: {e}")
+
 
 def watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, aggregation_point_folder):
     """
@@ -43,6 +44,7 @@ def watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, agg
 
         try:
             print(f"Watching for changes in {rdf_folder}. Press Ctrl+C to stop.")
+            logger.info(f"Watching for changes in {rdf_folder}. Press Ctrl+C to stop.")
 
             # Continuously monitor the folder
             while True:
@@ -54,10 +56,26 @@ def watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, agg
                 event_handler.clear_changes()  # Reset the change flag
 
         except KeyboardInterrupt:
+            observer.stop()
             logger.error(f"Keyboard interrupt detected")
+        except PermissionError as e:
+            logger.error(f"File Permission error in watching_rdf_folder: {e}")
+        except FileNotFoundError as e:
+            logger.error(f"File not found error in watching_rdf_folder: {e}")
+        except Exception as e:
+            logger.error(f"Error in watching_rdf_folder: {e}")
 
+    except PermissionError as e:
+        logger.error(f"File Permission error in watchin_rdf_folder: {e}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found error in watching_rdf_folder: {e}")
     except Exception as e:
         logger.error(f"Error in watching_rdf_folder: {e}")
+
+    finally:
+        observer.stop()
+        observer.join()
+        logger.info("Observer stopped")
 
 class MyHandler(FileSystemEventHandler):
     """
@@ -93,6 +111,7 @@ class MyHandler(FileSystemEventHandler):
         try:
             if not event.is_directory:
                 print(f'File {event.src_path} has been added. Processing')
+                logger.info(f'File {event.src_path} has been added. Processing')
                 file_name = os.path.basename(event.src_path)
                 if file_name.endswith(".ttl"):
                     rdf_file_path = os.path.join(self.rdf_folder, file_name)  # Get full path of RDF file
@@ -100,9 +119,10 @@ class MyHandler(FileSystemEventHandler):
                     json_file_path = os.path.join(self.vehicle_json_folder, json_file_name)
                     self.executor.submit(main, rdf_file_path, json_file_path, self.average_speed_json, self.aggregation_point_folder)
                     self.changes_detected = True
-                    # main(rdf_file_path, json_file_path, self.average_speed_json, self.aggregation_point_folder)
                 else:
-                    print(f'Ignoring non-TTL file: {file_name}')
+                    logger.info(f'Ignoring non-TTL file: {file_name}')
+        except FileNotFoundError as e:
+            logger.error(f"File not found error in MyHadler.on_created: {e}")
         except Exception as e:
             logger.error(f"Error in MyHandler.on_created: {e}")
 
@@ -113,6 +133,7 @@ class MyHandler(FileSystemEventHandler):
         Returns:
             bool: True if new files have been processed, False otherwise.
         """
+        return self.changes_detected
 
     def clear_changes(self):
         """
@@ -122,10 +143,15 @@ class MyHandler(FileSystemEventHandler):
 
 # Entry point of the script
 if __name__ == "__main__":
-    # Define paths and folders
-    rdf_folder = "output/rdf_local_copy"
-    vehicle_json_folder = "output/json"
-    average_speed_json = "/home/pragnakalp-l-12/Desktop/viren_sir/test/aggregation_point/average_speed_json/average_speed.json"
-    aggregation_point_folder = "aggregation_point_rdf"
-    # Call main function with specified parameters
-    watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, aggregation_point_folder)
+    try:
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        # Define paths and folders
+        rdf_folder = config.get('folders', 'rdf_folder')
+        vehicle_json_folder = config.get('folders', 'vehicle_json_folder')
+        average_speed_json = config.get('files', 'average_speed_json')
+        aggregation_point_folder = config.get('folders', 'aggregation_point_folder')
+        # Call main function with specified parameters
+        watching_rdf_folder(rdf_folder, vehicle_json_folder, average_speed_json, aggregation_point_folder)
+    except Exception as e:
+        logger.error(f"Error found in the entry point of the aggregatoin_point main file: {e}")

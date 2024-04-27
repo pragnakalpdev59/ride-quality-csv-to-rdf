@@ -2,6 +2,8 @@ from imports.imports import *  # Import necessary modules
 
 def create_subject_and_triple(idx, row, RideQuality):
     try:
+        exception_flag = False
+
         # Extract data from the row
         latitude = Literal(row['lat'], datatype=XSD.decimal)
         longitude = Literal(row['lon'], datatype=XSD.decimal)
@@ -27,8 +29,18 @@ def create_subject_and_triple(idx, row, RideQuality):
         subject = RideQuality[f"geoLocation{padded_idx}"]
 
         return sub, ride_quality, subject, speed, latitude, longitude  # Return extracted data
+
+    except KeyError as e:
+        logger.error(f"KeyError occurred while extracting data from the row: {e}")
+        exception_flag = True
+    except (ValueError, TypeError) as e:
+        logger.error(f"Data extraction or triple creation error: {e}")
+        exception_flag = True
     except Exception as e:
         logger.error(f"Error in create_subject_and_triple: {e}")
+        exception_flag = True
+
+    if exception_flag:
         return None, None, None, None, None  # Return None values in case of an error
 
 def csv_to_rdf(cached_df, rdf_folder, ttl_file_path):
@@ -82,6 +94,10 @@ def csv_to_rdf(cached_df, rdf_folder, ttl_file_path):
         # Serialize the updated graph to the TTL file
         graph.serialize(ttl_file_path, format="ttl")
 
+    except IOError as e:
+        logger.error(f"I/O error occurred while loading or saving the RDF file: {e}")
+    except GraphException as e:
+        logger.error(f"Graph manipulation error: {e}")
     except Exception as e:
         logger.error(f"Error in csv_to_rdf: {e}")  # Log error if any
 
@@ -92,6 +108,10 @@ def rdf_generation(cached_df, rdf_folder, ttl_file_path):
             futures = [executor.submit(csv_to_rdf, cached_df, rdf_folder, ttl_file_path)]
 
         concurrent.futures.wait(futures)  # Wait for all tasks to complete
+
+    except concurrent.futures.TimeoutError as e:
+        logger.error(f"Timeout error occurred during RDF generation: {e}")
     except Exception as e:
-        logger.error(f"Error in rdf_generation: {e}")  # Log error if any
+        logger.error(f"Error in rdf_generation: {e}")
+
 

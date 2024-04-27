@@ -1,0 +1,17 @@
+Example: "We have some information on road from Dahod to Garbada. The road is currently well paved. The road does not have any bumps. The ride quality is overall smooth with allowable steady average speed of 45 kmph. The road has traffic during day time. Caution must be exercised at speeds above average."
+
+Example:
+'''We have some information on road from "(22.875595, 74.230773)" to "(22.855836, 74.243385)". The road is currently <Q-1>. The road "has 10" bumps. The ride quality is "overall smooth" with suggested steady average speed of "34.07". The road "has traffic" during day time. "Caution must be exercised at speeds above average".'''
+
+PROMPT: "We have some information on road from . The road is currently <Q-1>. The road <Q-2> bumps. The ride quality is <Q-3> with suggested steady average speed of <Q-4>. The road <Q-5> during day time. <Q-6>"
+
+
+
+
+
+Input: "{'City Names': 'Dahod to Garbada', 'Road Condition': 'Overall, the road quality seems good to go.', 'Ride Quality': 'overall smooth', 'Warning': 'Drive safely and observe all traffic regulations.', 'Number of bumps': 78, 'Average Speed': 52.8}"
+
+
+Expected Output: "We have some information on road from Dahod to Garbada. Overall, the road quality seems good to go. The road has 78 bumps. The ride quality is overall smooth with suggested steady average speed of 52.8.Drive safely and observe all traffic regulations."
+
+Above are my expectations from a NLP Model. I want to create a model that stisfies my requirements by giving outputs like above expected output. How should I do it ? should I create a LLM or should I use the existing models and train them? Give answer with specific reasones and walk me through process for how to do any of that.

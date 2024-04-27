@@ -1,6 +1,8 @@
 # Importing necessary modules
-from imports.imports import json, Graph, URIRef, prepareQuery, get_ontology, sync_reasoner, time, logger  # Importing specific functions/classes
+from imports.imports import configparser, json, Graph, URIRef, prepareQuery, get_ontology, sync_reasoner, time, logger  # Importing specific functions/classes
 from measure_distance.distance_algo import compare_value  # Importing custom distance algorithm functions
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # Function to extract geo-location data from RDF and update JSON
 def all_geo_location(rdf_file_path, json_file_path, average_speed_json, aggregation_point_folder):
@@ -15,8 +17,16 @@ def all_geo_location(rdf_file_path, json_file_path, average_speed_json, aggregat
         aggregation_point_folder (str): Path to the aggregation point folder (for potential future use).
     """
     try:
+        config = configparser.ConfigParser()
+        config_path = 'config.ini'  # Update this with the correct path
+        logger.info(f"Reading configuration file from: {config_path}")
+        config.read(config_path)
+
+        # Print out recognized sections for debugging
+        logger.info(f"Recognized sections: {config.sections()}")
+
         # Load RDF data and ontology into a graph
-        ontology = "ontology.owl"  # Path to the ontology file (assumed to be in the same location)
+        ontology = config.get('files', 'ontology')  # Path to the ontology file (assumed to be in the same location)
         g = Graph()
         g.parse(ontology, format="xml")  # Load ontology
         g.parse(rdf_file_path, format="turtle")  # Load RDF data

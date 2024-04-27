@@ -5,7 +5,7 @@ MY_LOGGING_CONFIG = {
     'disable_existing_loggers': False,
     'formatters': {
         'default_formatter': {
-            'format': '[%(levelname)s:%(asctime)s] %(message)s'
+            'format': '[%(levelname)s:%(asctime)s %(module)s:%(lineno)s %(funcName)s] %(message)s'
         },
     },
     'handlers': {
@@ -21,7 +21,7 @@ MY_LOGGING_CONFIG = {
     },
     'loggers': {
         'mylogger': {
-            'handlers': ['stream_handler', 'file_handler'],  # Add 'file_handler' here
+            'handlers': ['stream_handler', 'file_handler'],
             'level': 'INFO',
             'propagate': True
         }

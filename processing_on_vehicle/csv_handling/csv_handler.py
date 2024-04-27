@@ -2,7 +2,6 @@ from imports.imports import *  # Import statements for necessary modules and fun
 from rdf_handling.rdf_generator import rdf_generation  # Import RDF generation function
 from rdf_handling.combined_geoLocation_json_creation import json_generation  # Import JSON generation function
 from rdf_handling.combined_rdf_generator import combined_triples_generator  # Import combined triples generation function
-
 cached_df = None  # Initialize DataFrame for caching data
 last_row_count = 0  # Initialize variable to track last row count
 
@@ -19,7 +18,17 @@ def data_labeling(column_labels):
 def sliding_window(speed):
     """Implement sliding window technique for data processing."""
     try:
-        window_size = 5
+        if len(speed)%2 == 0:
+            window_size = 2
+        elif len(speed)%3 == 0:
+            window_size = 3
+        elif len(speed)%5 == 0:
+            window_size = 5
+        elif len(speed)%7 == 0:
+            window_size = 7
+        else:
+            window_size = 3
+
         if len(speed) <= window_size:
             return [0] * len(speed)  # Return zeros if window size is larger than data
 
@@ -34,6 +43,7 @@ def sliding_window(speed):
         return severities  # Return calculated severities
     except Exception as e:
         logger.error(f"Error in sliding_window: {e}")  # Log error
+
 
 def classification():
     """Perform classification based on data."""
@@ -52,11 +62,11 @@ def classify_movement(severity):
     """Classify movement based on severity."""
     try:
         severity_ranges = {
-            (3.0, float('inf')): "High Acceleration",
-            (1.0, 3.0): "Normal Acceleration",
-            (0, 1.0): "Steady Speed",
-            (-3.0, 0): "Normal Braking",
-            (-float('inf'), -3.0): "High Braking",
+            (5.0, float('inf')): "High Acceleration",
+            (1.0, 5.0): "Normal Acceleration",
+            (-1.0, 1.0): "Steady Speed",
+            (-5.0, -1.0): "Normal Braking",
+            (-float('inf'), -5.0): "High Braking",
         }
 
         for range_, movement in severity_ranges.items():
@@ -64,6 +74,38 @@ def classify_movement(severity):
                 return movement  # Return movement classification
     except Exception as e:
         logger.error(f"Error in classify_movement: {e}")  # Log error
+
+def after_data_loggin(csv_folder, rdf_folder, classified_csv, csv_local_copy, json_folder, combined_triples_rdf, rdf_local_copy, event_handler):
+    try:
+        for csv_filename in sorted(os.listdir(csv_folder)):
+            if csv_filename.endswith(".csv"):
+                            csv_file_path = os.path.join(csv_folder, csv_filename)
+                            destination_path = os.path.join(classified_csv, csv_filename)
+                            cached_df.to_csv(destination_path, index=False)  # Save classified CSV
+
+                    # Move files and generate RDF if changes detected
+        for rdf_filename in sorted(os.listdir(rdf_folder)):
+            if rdf_filename.endswith(".ttl"):
+                            temp_file_path = os.path.join(rdf_folder, rdf_filename)
+                            road_section_list = end_filename(destination_path)
+                            timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S'))
+                            output_filename = f"RoadSection_Start:{road_section_list[0]}_End:{road_section_list[1]}_{timestamp}"
+                            output_filename = output_filename.replace(' ', '')
+                            rdf_local_copy_filename = f"{output_filename}.ttl"
+                            rdf_local_copy_path = os.path.join(rdf_local_copy, rdf_local_copy_filename)
+                            shutil.move(temp_file_path, rdf_local_copy_path)  # Move RDF file
+                            file_upload(rdf_local_copy_path)
+                            csv_local_copy_filename = f"{output_filename}.csv"
+                            csv_local_copypath = os.path.join(csv_local_copy, os.path.basename(csv_local_copy_filename))
+                            shutil.move(destination_path, csv_local_copypath)  # Move classified CSV
+                            json_file_name = f"{output_filename}.json"
+                            json_file_path = os.path.join(json_folder, json_file_name)
+                            json_generation(csv_local_copypath, json_file_path)  # Generate JSON file
+                            rdf_file_path = os.path.join(combined_triples_rdf, rdf_local_copy_filename)
+                            combined_triples_generator(json_file_path, rdf_file_path)  # Generate combined RDF
+                            event_handler.cleanup_original(csv_file_path)  # Cleanup original file
+    except Exception as e:
+        logger.error(f"Error in after_data_loggin: {e}")
 
 def start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_folder, rdf_local_copy, csv_local_copy, json_folder, combined_triples_rdf, ttl_file_path, no_change_detected_time=5):
     """Start watching the CSV folder for changes."""
@@ -83,32 +125,7 @@ def start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_fol
                 # Check for changes every second
                 if current_time - last_change_time > no_change_detected_time:
                     # Process files and generate RDF if no changes detected
-                    for csv_filename in sorted(os.listdir(csv_folder)):
-                        if csv_filename.endswith(".csv"):
-                            csv_file_path = os.path.join(csv_folder, csv_filename)
-                            destination_path = os.path.join(classified_csv, csv_filename)
-                            cached_df.to_csv(destination_path, index=False)  # Save classified CSV
-
-                    # Move files and generate RDF if changes detected
-                    for rdf_filename in sorted(os.listdir(rdf_folder)):
-                        if rdf_filename.endswith(".ttl"):
-                            temp_file_path = os.path.join(rdf_folder, rdf_filename)
-                            road_section_list = end_filename(destination_path)
-                            timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S'))
-                            output_filename = f"RoadSection_Start:{road_section_list[0]}_End:{road_section_list[1]}_{timestamp}"
-                            output_filename = output_filename.replace(' ', '')
-                            rdf_local_copy_filename = f"{output_filename}.ttl"
-                            rdf_local_copy_path = os.path.join(rdf_local_copy, rdf_local_copy_filename)
-                            shutil.move(temp_file_path, rdf_local_copy_path)  # Move RDF file
-                            csv_local_copy_filename = f"{output_filename}.csv"
-                            csv_local_copypath = os.path.join(csv_local_copy, os.path.basename(csv_local_copy_filename))
-                            shutil.move(destination_path, csv_local_copypath)  # Move classified CSV
-                            json_file_name = f"{output_filename}.json"
-                            json_file_path = os.path.join(json_folder, json_file_name)
-                            json_generation(csv_local_copypath, json_file_path)  # Generate JSON file
-                            rdf_file_path = os.path.join(combined_triples_rdf, rdf_local_copy_filename)
-                            combined_triples_generator(json_file_path, rdf_file_path)  # Generate combined RDF
-                            event_handler.cleanup_original(csv_file_path)  # Cleanup original file
+                    after_data_loggin(csv_folder, rdf_folder, classified_csv, csv_local_copy, json_folder, combined_triples_rdf, rdf_local_copy, event_handler)
 
                 time.sleep(1)  # Sleep for 1 second
 
@@ -117,6 +134,7 @@ def start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_fol
                     last_change_time = current_time
                     event_handler.clear_changes()  # Clear changes flag
         except KeyboardInterrupt:
+            observer.stop()
             logger.error(f"Keyboard interrupt detected")  # Exit on Ctrl+C
 
         for filename in os.listdir(csv_folder):
@@ -126,7 +144,10 @@ def start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_fol
 
     except Exception as e:
         logger.error(f"Error in start_watching_csv_folder: {e}")  # Log error
-
+    finally:
+        observer.stop()
+        observer.join()
+        logger.info(f"Observer Stopped.")
 def end_filename(destination_path):
     try:
         """Extract road section details from destination path."""
@@ -142,6 +163,28 @@ def end_filename(destination_path):
         return road_section_list  # Return road section details
     except Exception as e:
         logger.error(f"Error in end_finename: {e}")
+
+def file_upload(rdf_local_copy_path):
+    try:
+        upload_url = 'https://17e0-2401-4900-50a0-b70-7271-44de-781b-2857.ngrok-free.app/api/upload'
+
+        with open(rdf_local_copy_path, 'rb') as file:
+            files = {'file': file}
+            response = requests.post(upload_url, files=files)
+            response.raise_for_status()  # Raises HTTPError for 4xx and 5xx status codes
+            logger.info(f"File Uploaded from {rdf_local_copy_path}")
+
+    except requests.HTTPError as e:
+        logger.error(f"HTTP Error: {e}")
+    except requests.ConnectionError as e:
+        logger.error(f"Connection Error: {e}")
+    except FileNotFoundError as e:
+        logger.error(f"File Not Found Error: {e}")
+    except Exception as e:
+        logger.error(f"Error in file_upload: {e}")
+
+
+
 class MyHandler(FileSystemEventHandler):
     """Custom event handler for file system monitoring."""
 
@@ -153,6 +196,7 @@ class MyHandler(FileSystemEventHandler):
         self.rdf_folder = rdf_folder
         self.changes_detected = False
         self.rdf_local_copy = rdf_local_copy
+        self.log_event_file_name = True
 
     def remove_duplicates(self):
         """Remove duplicate and empty rows from cached DataFrame."""
@@ -187,6 +231,7 @@ class MyHandler(FileSystemEventHandler):
         except Exception as e:
             logger.error(f"Error in update_cached_df: {e}")
 
+
     def on_modified(self, event):
         """Handle modified event for file system monitoring."""
         try:
@@ -195,25 +240,43 @@ class MyHandler(FileSystemEventHandler):
                 return
 
             if event.event_type == 'modified':
-                print(f'File {event.src_path} has been modified. Processing...')
+                if self.log_event_file_name:
+                    print(f'File {event.src_path} has been modified. Processing...')
+                    logger.info(f'File {event.src_path} has been modified.')
+                    self.log_event_file_name = False
+
                 # Process the modified file
                 csv_file_path = event.src_path
                 destination_path = os.path.join(self.classified_csv, os.path.basename(csv_file_path))
 
-                if not os.path.exists(destination_path):
-                    with open(destination_path, 'w'):  # Create the file
-                        pass
+                # Create the destination file if it doesn't exist
+                try:
+                    if not os.path.exists(destination_path):
+                        with open(destination_path, 'w'):
+                            pass
+                except OSError as e:
+                    logger.error(f"Error creating destination file {destination_path}: {e}")
 
-                self.update_cached_df(csv_file_path)  # Update cached DataFrame
-                self.data_cleaning()  # Perform data cleaning
-                data_labeling(self.column_labels)  # Label data columns
-                self.remove_duplicates()  # Remove duplicates
-                classification()  # Perform classification
-                self.executor.submit(rdf_generation, cached_df, self.rdf_folder, self.ttl_file_path)  # Generate RDF
-                self.changes_detected = True  # Set changes detected flag
+                # Perform file processing operations
+                try:
+                    self.update_cached_df(csv_file_path)  # Update cached DataFrame
+                    data_labeling(self.column_labels)  # Label data columns
+                    self.remove_duplicates()  # Remove duplicates
+                    classification()  # Perform classification
+                    print(cached_df)
+                    try:
+                        self.executor.submit(rdf_generation, cached_df, self.rdf_folder, self.ttl_file_path)  # Generate RDF
+                    except Exception as e:
+                        logger.error(f"Error in RDF generation Thread Call: {e}")
+                    self.changes_detected = True  # Set changes detected flag
+                except Exception as e:
+                    logger.error(f"Error processing modified file {csv_file_path}: {e}")
 
+        except (FileNotFoundError, PermissionError, OSError) as e:
+            logger.error(f"Error in MyHandler.on_modified: {e}")
         except Exception as e:
-            logger.error(f"Error in MyHandler.on_modified: {e}")  # Log error
+            logger.error(f"Unexpected error in MyHandler.on_modified: {e}")
+
 
     def has_changes(self):
         """Check if changes have been detected."""
@@ -226,7 +289,12 @@ class MyHandler(FileSystemEventHandler):
     def cleanup_original(self, csv_file_path):
         """Cleanup original CSV file."""
         try:
+            self.log_event_file_name = True
             os.remove(csv_file_path)  # Remove original CSV file
             logger.info(f'Original file {csv_file_path} deleted.')
+        except FileNotFoundError as e:
+            logger.error(f'Error deleting original file {csv_file_path}: File not found')
+        except PermissionError as e:
+            logger.error(f'Error deleting original file {csv_file_path}: Permission denied')
         except Exception as e:
-            logger.error(f'Error deleting original file {csv_file_path}: {e}')  # Log error deleting file
+            logger.error(f'Error deleting original file {csv_file_path}: {e}')

@@ -1,5 +1,5 @@
 # Import libraries
-from imports.imports import requests, logger
+from imports.imports import requests, logger, configparser
 
 def get_city(latitude, longitude):
     """
@@ -15,7 +15,9 @@ def get_city(latitude, longitude):
 
     try:
         # Define the global API key (replace with your actual API key)
-        global API_KEY
+        config = configparser.ConfigParser()
+        config.read('config/config.ini')
+        API_KEY = config.get('api_key', 'geoapify_key')
 
         # Construct the API request URL using f-strings
         url = f"https://api.geoapify.com/v1/geocode/reverse?lat={latitude}&lon={longitude}&apiKey={API_KEY}"
@@ -47,6 +49,3 @@ def get_city(latitude, longitude):
     except Exception as e:
         # Log an unexpected error
         logger.error(f"Unexpected Error: {e}")
-
-
-API_KEY = "892891b29d594306b579c43b8f5d021a"

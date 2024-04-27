@@ -39,7 +39,7 @@ def main():
     try:
         # Define input and output folders
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read('config/config.ini')
         ttl_folder = config.get('folders', 'ttl_folder')
         text_folder = config.get('folders', 'text_folder')
         ontology = config.get('urls', 'ontology')

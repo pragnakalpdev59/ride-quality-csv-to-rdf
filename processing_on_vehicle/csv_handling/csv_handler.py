@@ -94,7 +94,7 @@ def after_data_loggin(csv_folder, rdf_folder, classified_csv, csv_local_copy, js
                             rdf_local_copy_filename = f"{output_filename}.ttl"
                             rdf_local_copy_path = os.path.join(rdf_local_copy, rdf_local_copy_filename)
                             shutil.move(temp_file_path, rdf_local_copy_path)  # Move RDF file
-                            file_upload(rdf_local_copy_path)
+                            # file_upload(rdf_local_copy_path)
                             csv_local_copy_filename = f"{output_filename}.csv"
                             csv_local_copypath = os.path.join(csv_local_copy, os.path.basename(csv_local_copy_filename))
                             shutil.move(destination_path, csv_local_copypath)  # Move classified CSV
@@ -105,7 +105,7 @@ def after_data_loggin(csv_folder, rdf_folder, classified_csv, csv_local_copy, js
                             combined_triples_generator(json_file_path, rdf_file_path)  # Generate combined RDF
                             event_handler.cleanup_original(csv_file_path)  # Cleanup original file
     except Exception as e:
-        logger.error(f"Error in after_data_loggin: {e}")
+        logger.error(f"Error in the function:after_data_loggin: {e}")
 
 def start_watching_csv_folder(column_labels, csv_folder, classified_csv, rdf_folder, rdf_local_copy, csv_local_copy, json_folder, combined_triples_rdf, ttl_file_path, no_change_detected_time=5):
     """Start watching the CSV folder for changes."""

@@ -3,9 +3,10 @@ from measure_distance.rdf_generator import rdf_generation
 # Importing all modules from imports.imports module
 from imports.imports import *  # Import all functions/classes from imports.imports
 
+config = configparser.ConfigParser()
+config.read('config/config.ini')
 # Path to the old data folder
-old_data = "/home/pragnakalp-l-12/Desktop/viren_sir/test/aggregation_point/old_data"
-
+old_data = config.get('folders', 'old_data')
 # Function to calculate average speed and update JSON data
 def get_average_speed(AggregationPoint_json, average_speed_json, aggregation_point_folder):
     try:

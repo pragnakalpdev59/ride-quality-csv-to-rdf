@@ -1,4 +1,4 @@
-authtoken: 2ffZwUMeDIv8QA1KcqPSIfXs0av_3wiPAoF4dC3p7ymzC4TjV #please change this to your auth token
+authtoken: <add your auth token...> #please change this to your auth token
 # find your ngrok authtoken here: `https://dashboard.ngrok.com/tunnels/authtokens`
 region: in
 version: 2

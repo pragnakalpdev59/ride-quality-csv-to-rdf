@@ -11,7 +11,7 @@ def csv_to_rdf_conversion(column_labels, csv_folder, classified_csv, rdf_folder,
 def main():
     try:
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read('config/config.ini')
         # Define column labels for CSV data
         column_labels = ['time', 'speed', 'lat', 'lon']
 

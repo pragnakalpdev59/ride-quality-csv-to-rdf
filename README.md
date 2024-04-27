@@ -6,7 +6,7 @@ This project facilitates the conversion of CSV (Comma Separated Values) data col
 
 ## Configuration
 
-Before getting started, ensure to configure the project settings in the `config.ini` files located in various directories. Adjust the file paths according to your requirements and obtain necessary API keys as instructed in the provided links.
+Before getting started, ensure to configure the project settings in the `config.ini` files located in various directories. Adjust the file paths according to your requirements and obtain the necessary API keys as instructed in the provided links.
 
 If the `config.ini` file is not visible, check in `config/config.ini`.
 
@@ -58,13 +58,13 @@ Installed on the Raspberry Pi of the vehicle, this component consists of the fol
   - Additional files in the `rdf_handling` directory are used for creating combined triple files, although their use case is currently undeveloped.
 
 - **Output Folder:**
-  - Automatically created if it does not exist, to store generated RDF files.
+  - Automatically created to store generated RDF files if it does not exist.
 
-Note: `file_upload()` function is currently commented out, intended for simulating communication between the vehicle and aggregation point via a Flask API. In IoT implementations, communication handling would differ.
+Note: The `file_upload()` function is currently commented out, intended for simulating communication between the vehicle and aggregation point via a Flask API. In IoT implementations, communication handling would differ.
 
 ### 4. Flask API
 
-This folder is designed to reside on the main server hosting the website `https://roadsemantics.in/`. It facilitates the transmission of updated RDF files and text files from the aggregation point to the server.
+This folder is designed to reside on the website's main server [Road Semantics](https://roadsemantics.in/). It facilitates the transmission of updated RDF files and text files from the aggregation point to the server.
 
 ## Conclusion
 
